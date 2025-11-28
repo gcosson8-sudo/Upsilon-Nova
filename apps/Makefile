@@ -8,26 +8,26 @@ include apps/usb/Makefile
 apps =
 # All selected apps are included. Each Makefile below is responsible for setting
 # the $apps variable (name of the app class) and the $app_headers
-# (path to the apps header).
-$(foreach i,${apps_list},${eval include apps/$(i)/Makefile})
+# (path to the apps header). Only include Makefiles that actually exist so we
+# can gracefully handle missing optional submodules.
+$(foreach i,${apps_list},$(if $(wildcard apps/$(i)/Makefile),${eval include apps/$(i)/Makefile}))
 
 app_equals = $(and $(findstring $(1),$(2)),$(findstring $(2),$(1)))
 # We list all the apps that are missing
 apps_missing = $(foreach i, ${apps_list}, $(if $(call app_equals, apps/$(i)/Makefile, $(wildcard apps/$(i)/Makefile)),, $(i) ) )
+apps_missing_submodules = $(filter $(SUBMODULES_APPS), $(apps_missing))
+apps_missing_non_submodules = $(filter-out $(SUBMODULES_APPS), $(apps_missing))
 
-# If the two doesn't match, we got an error.
-ifneq ($(strip $(apps_missing)),)
-    miss_modules = 0
+# Fail only when non-optional apps are missing. Optional submodule apps are
+# silently dropped (with a warning) so CI can proceed without pulling them.
+ifneq ($(strip $(apps_missing_non_submodules)),)
+    $(error Missing apps: $(strip $(apps_missing_non_submodules)))
+endif
 
-    # Check if the missing apps are one that are supposed to be submodules
-    $(foreach i, $(SUBMODULES_APPS), $(if $(call app_equals, $(filter $(i), $(apps_missing)), $(i)), $(eval miss_modules=1)))
-
-    ifeq ($(miss_modules), 1)
-        PLS_IGNORE := $(shell >&2 printf "\nSome submodules apps seem to be missing. To download them, assuming you git clone'd the repo, do\n")
-        PLS_IGNORE := $(shell >&2 printf "  git submodule init\n")
-        PLS_IGNORE := $(shell >&2 printf "  git submodule update\n\n")
-    endif
-    $(error Missing apps: $(strip $(apps_missing)))
+ifneq ($(strip $(apps_missing_submodules)),)
+    $(warning Optional submodule apps missing: $(strip $(apps_missing_submodules)). Excluding them from this build. Run 'git submodule update --init' to include them.)
+    apps_list := $(filter-out $(apps_missing_submodules), $(apps_list))
+    EPSILON_APPS := $(filter-out $(apps_missing_submodules), $(EPSILON_APPS))
 endif
 
 apps_src += $(addprefix apps/,\
