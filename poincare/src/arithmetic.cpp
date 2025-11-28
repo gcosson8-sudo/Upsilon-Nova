@@ -1,14 +1,13 @@
 #include <poincare/arithmetic.h>
 #include <assert.h>
 #include <utility>
+#include <algorithm>
 #include <poincare/expression.h>
 #include <poincare/rational.h>
 
 namespace Poincare {
 
-namespace {
-
-uint16_t CountTrailingZeros(const Integer & i) {
+uint16_t Arithmetic::CountTrailingZeros(const Integer & i) {
   assert(!i.isZero());
   uint16_t zeros = 0;
   for (uint8_t d = 0; d < i.numberOfDigits(); d++) {
@@ -23,7 +22,7 @@ uint16_t CountTrailingZeros(const Integer & i) {
   return zeros;
 }
 
-Integer ShiftRightByPowerOfTwo(Integer value, uint16_t pow) {
+Integer Arithmetic::ShiftRightByPowerOfTwo(Integer value, uint16_t pow) {
   while (pow >= 31) {
     value = value.divideByPowerOf2(31);
     pow -= 31;
@@ -34,7 +33,7 @@ Integer ShiftRightByPowerOfTwo(Integer value, uint16_t pow) {
   return value;
 }
 
-Integer ShiftLeftByPowerOfTwo(Integer value, uint16_t pow) {
+Integer Arithmetic::ShiftLeftByPowerOfTwo(Integer value, uint16_t pow) {
   while (pow >= 31) {
     value = value.multiplyByPowerOf2(31);
     pow -= 31;
@@ -43,8 +42,6 @@ Integer ShiftLeftByPowerOfTwo(Integer value, uint16_t pow) {
     value = value.multiplyByPowerOf2(pow);
   }
   return value;
-}
-
 }
 
 Integer Arithmetic::GCD(const Integer & a, const Integer & b) {

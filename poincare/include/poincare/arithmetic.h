@@ -33,6 +33,10 @@ private:
   /* When decomposing an integer into primes factors, we look for its prime
    * factors among integer from 2 to 10000. */
   constexpr static int k_biggestPrimeFactor = 10000;
+private:
+  static uint16_t CountTrailingZeros(const Integer & i);
+  static Integer ShiftRightByPowerOfTwo(Integer value, uint16_t pow);
+  static Integer ShiftLeftByPowerOfTwo(Integer value, uint16_t pow);
 };
 
 }
