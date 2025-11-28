@@ -45,12 +45,11 @@ jobs:
       - name: Install gint/fxsdk
         if: steps.cache-gint.outputs.cache-hit != 'true'
         env:
-          URL: "https://git.planet-casio.com/Lephenixnoir/GiteaPC/archive/master.tar.gz"
+          GITEAPC_REPO: "https://git.planet-casio.com/Lephenixnoir/GiteaPC.git"
         run: |
           export PATH="~/.local/bin:$PATH"
           cd "$(mktemp -d)"
-          curl "$URL" -o giteapc-master.tar.gz
-          tar -xzf giteapc-master.tar.gz
+          git clone --depth 1 "${GITEAPC_REPO}" giteapc
           cd giteapc
           python3 giteapc.py install Lephenixnoir/GiteaPC -y
           sudo apt-get install python3-pil libusb-1.0-0-dev libudev-dev libsdl2-dev libpng-dev libudisks2-dev libglib2.0-dev libmpfr-dev libmpc-dev libppl-dev -y
