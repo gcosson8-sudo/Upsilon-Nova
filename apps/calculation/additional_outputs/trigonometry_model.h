@@ -1,0 +1,42 @@
+#ifndef CALCULATION_ADDITIONAL_OUTPUTS_TRIGONOMETRY_MODEL_H
+#define CALCULATION_ADDITIONAL_OUTPUTS_TRIGONOMETRY_MODEL_H
+
+#include "../../shared/curve_view_range.h"
+#include "illustrated_list_controller.h"
+#include <complex>
+#include <poincare/trigonometry.h>
+
+namespace Calculation {
+
+class TrigonometryModel : public Shared::CurveViewRange {
+public:
+  TrigonometryModel();
+  // CurveViewRange
+  float xMin() const override { return -k_xHalfRange; }
+  float xMax() const override { return k_xHalfRange; }
+  float yMin() const override;
+  float yMax() const override;
+
+  void setAngle(float f) { m_angle = f; }
+  float angle() const { return m_angle*(float)M_PI/(float)Poincare::Trigonometry::PiInAngleUnit(Poincare::Preferences::sharedPreferences()->angleUnit()); }
+  void setShouldDisplayTan(bool shouldDisplayTan) { m_shouldDisplayTan = shouldDisplayTan; }
+private:
+  constexpr static float k_xHalfRange = 2.1f;
+  // We center the yRange around the semi-circle where the angle is
+  float yCenter() const { return std::sin(angle()) >= 0.0f ? 0.5f : -0.5f; }
+
+  /* We want to normalize the displayed trigonometry circle:
+   * - On the X axis, we display 4.4 units on an available pixel width of
+   *   (Ion::Display::Width - Metric::PopUpRightMargin - Metric::PopUpLeftMargin)
+   * - On the Y axis, the available pixel height is
+   *   IllustratedListController::k_illustrationHeight
+   */
+  float yHalfRange() const { return IllustratedListController::k_illustrationHeight*k_xHalfRange/(Ion::Display::Width - Metric::PopUpRightMargin - Metric::PopUpLeftMargin); }
+
+  float m_angle;
+  bool m_shouldDisplayTan;
+};
+
+}
+
+#endif
