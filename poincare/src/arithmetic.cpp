@@ -235,6 +235,21 @@ int Arithmetic::PrimeFactorization(const Integer & n, Integer outputFactors[], I
   int k = 0; // prime factor index
   Integer testedPrimeFactor((int)primeFactors[k]); // prime factor
   Integer testedPrimeSquare = Integer::Multiplication(testedPrimeFactor, testedPrimeFactor);
+
+  if (m.isEven()) {
+    uint16_t twosMultiplicity = CountTrailingZeros(m);
+    m = ShiftRightByPowerOfTwo(m, twosMultiplicity);
+    assert(t < outputLength);
+    outputFactors[t] = testedPrimeFactor;
+    outputCoefficients[t] = Integer(twosMultiplicity);
+    t++;
+    k = 1;
+    testedPrimeFactor = Integer((int)primeFactors[k]);
+    testedPrimeSquare = Integer::Multiplication(testedPrimeFactor, testedPrimeFactor);
+    if (m.isOne()) {
+      return t;
+    }
+  }
   while (true) {
     IntegerDivision d = Integer::Division(m, testedPrimeFactor);
     int multiplicity = 0;
