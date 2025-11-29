@@ -85,7 +85,9 @@ Integer Arithmetic::GCD(const Integer & a, const Integer & b) {
     uint16_t shiftJInner = CountTrailingZeros(j);
     j = ShiftRightByPowerOfTwo(j, shiftJInner);
     if (Integer::NaturalOrder(i, j) > 0) {
-      std::swap(i, j);
+      Integer tmp = i;
+      i = j;
+      j = tmp;
     }
     j = Integer::Subtraction(j, i);
   }
